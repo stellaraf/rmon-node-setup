@@ -5,6 +5,7 @@ rmon-node-setup*
 *.dll
 *.so
 *.dylib
+dist
 
 # Test binary, built with `go test -c`
 *.test
