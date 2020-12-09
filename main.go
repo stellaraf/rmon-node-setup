@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 
@@ -92,6 +93,7 @@ func main() {
 	util.SetHostname(hostname)
 	util.SetTimezone()
 	util.Dependencies()
+	util.ScaffoldRoot()
 
 	docker.Install()
 	docker.CreateGroup(g.LocalUser)
@@ -105,8 +107,13 @@ func main() {
 	docker.Scaffold(hostnameDashes)
 	systemd.DockerCompose()
 
+	dlDir := path.Join(outDir, hostnameDashes)
+	util.Info("Cleaning up %s", dlDir)
+	err := os.RemoveAll(dlDir)
+	util.Check("Error deleting %s", err, dlDir)
+
 	util.RunAs(g.LocalUser, func() {
-		util.Scaffold()
+		util.ScaffoldUser()
 		util.CheckSSHKeys()
 
 		systemd.AutoSSH(nodeID, tunnelServer)

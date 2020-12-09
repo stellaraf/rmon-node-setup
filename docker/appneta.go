@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
+	"strconv"
 
 	g "github.com/stellaraf/rmon-node-setup/globals"
 	util "github.com/stellaraf/rmon-node-setup/util"
@@ -73,18 +75,23 @@ func GetCompose(apiKey string, hostname string, outDir string) {
 		info := header.FileInfo()
 
 		if info.IsDir() {
-			util.RunAs(g.LocalUser, func() {
-				if err = os.MkdirAll(path, info.Mode()); err != nil {
-					util.Check("Error unpacking AppNeta Docker image: ", err)
-				}
-			})()
+			if err = os.MkdirAll(path, info.Mode()); err != nil {
+				util.Check("Error unpacking AppNeta Docker image: ", err)
+			}
 			continue
 		}
 		file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
 		util.Check(fmt.Sprintf("Error creating path %s: ", path), err)
 		defer file.Close()
+
 		_, err = io.Copy(file, tarReader)
 		util.Check("Error writing unpacked file: ", err)
+
+		user, err := user.Lookup(g.LocalUser)
+		uid, _ := strconv.Atoi(user.Uid)
+		gid, _ := strconv.Atoi(user.Gid)
+		err = os.Chown(path, uid, gid)
+		util.Check("Error changing ownership of %s to user %s", err, path, user.Name)
 	}
 
 	if _, err := os.Stat(outTarget); os.IsNotExist(err) {

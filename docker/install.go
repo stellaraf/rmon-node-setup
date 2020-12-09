@@ -87,7 +87,7 @@ func Install() {
 // InstallCompose installs docker-compose.
 func InstallCompose() {
 	user := util.CurrentUser()
-	composePath := path.Join(user.HomeDir + "/.local/bin/docker-compose")
+	composePath := path.Join(user.HomeDir, "/.local/bin/docker-compose")
 	if user.Name == "root" {
 		composePath = "/usr/local/bin/docker-compose"
 	}
@@ -103,18 +103,6 @@ func InstallCompose() {
 func Scaffold(hostname string) {
 	dir := "/etc/docker/compose"
 
-	if !util.FileExists(dir) {
-		err := os.Mkdir(dir, 0755)
-		util.Check("Error creating %s directory", err, dir)
-		if util.FileExists(dir) {
-			util.Success("Created %s", dir)
-		} else {
-			util.Check("Unable to create %s directory", os.ErrNotExist, dir)
-		}
-
-	} else {
-		util.Info("%s already exists", dir)
-	}
 	srcDir := path.Join(fmt.Sprintf(g.HomeDir, g.LocalUser), hostname)
 
 	cmpFileSrc := path.Join(srcDir, "mp-compose.yaml")
@@ -128,7 +116,6 @@ func Scaffold(hostname string) {
 
 	util.CopyFile(envFileSrc, envFileDst)
 	util.Success("Copied %s to %s", envFileSrc, envFileDst)
-
 }
 
 // ReadEnv loads the AppNeta .env file & reads its lines.
