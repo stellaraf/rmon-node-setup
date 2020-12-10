@@ -4,6 +4,9 @@
   <br/>
   <h3>Remote Monitoring Node Setup</h3>
   <br/>
+  <a href="https://github.com/stellaraf/rmon-node-setup/actions?query=workflow%3Agoreleaser">
+    <img src="https://img.shields.io/github/workflow/status/stellaraf/rmon-node-setup/goreleaser?color=%239100fa&event=push&style=for-the-badge" />
+  </a>
 </div>
 
 This repository contains source code for Stellar's remote monitoring node setup. The compiled binary installs dependencies, registers the node with the RMON reverse SSH-tunnel server, and sets up AppNeta docker-compose container(s).
