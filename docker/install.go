@@ -3,12 +3,10 @@ package docker
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
 	"regexp"
-	"strings"
 
 	g "github.com/stellaraf/rmon-node-setup/globals"
 	util "github.com/stellaraf/rmon-node-setup/util"
@@ -72,6 +70,17 @@ func aptSetup() {
 	util.Success("Added %s to APT sources", repo)
 }
 
+func composeInstalled() (i bool) {
+	cmd := exec.Command("python3", "-m", "compose")
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		i = false
+	} else {
+		i = true
+	}
+	return
+}
+
 // Install installs docker.
 func Install() {
 	util.Info("Installing docker...")
@@ -84,16 +93,12 @@ func Install() {
 	util.Check("Error installing Docker:\n%s", err, util.AsString(out))
 }
 
-// InstallCompose installs docker-compose.
+// InstallCompose installs docker-compose if it is not already intstalled.
 func InstallCompose() {
-	user := util.CurrentUser()
-	composePath := path.Join(user.HomeDir, "/.local/bin/docker-compose")
-	if user.Name == "root" {
-		composePath = "/usr/local/bin/docker-compose"
-	}
+	installed := composeInstalled()
 
-	if !util.FileExists(composePath) {
-		util.Info("Docker compose executable not found at %s, installing Docker Compose...", composePath)
+	if !installed {
+		util.Info("Docker Compose is not installed. Installing...")
 		out, err := exec.Command("pip3", "install", "docker-compose").CombinedOutput()
 		util.Check("Error installing Docker Compose:\n%s", err, util.AsString(out))
 	}
@@ -116,22 +121,4 @@ func Scaffold(hostname string) {
 
 	util.CopyFile(envFileSrc, envFileDst)
 	util.Success("Copied %s to %s", envFileSrc, envFileDst)
-}
-
-// ReadEnv loads the AppNeta .env file & reads its lines.
-func ReadEnv(hostname string) (vars []string) {
-	srcDir := path.Join(fmt.Sprintf(g.HomeDir, g.LocalUser), hostname)
-	filename := path.Join(srcDir, ".env")
-	if !util.FileExists(filename) {
-		util.Check("AppNeta .env file does not exist at %s", os.ErrNotExist, filename)
-	}
-	b, err := ioutil.ReadFile(filename)
-	util.Check("Error reading AppNeta .env file %s", err, filename)
-	parts := strings.Split(string(b), "\n")
-	for _, p := range parts {
-		if p != "\n" {
-			vars = append(vars, p)
-		}
-	}
-	return
 }
