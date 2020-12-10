@@ -5,11 +5,10 @@
   <h3>Remote Monitoring Node Setup</h3>
   <br/>
   <a href="https://github.com/stellaraf/rmon-node-setup/actions?query=workflow%3Agoreleaser">
-    <img src="https://img.shields.io/github/workflow/status/stellaraf/rmon-node-setup/goreleaser?color=%239100fa&event=push&style=for-the-badge" />
+    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/stellaraf/rmon-node-setup/goreleaser?color=9100fa&style=for-the-badge">
   </a>
+  This repository contains source code for Stellar's remote monitoring node setup. The compiled binary installs dependencies, registers the node with the RMON reverse SSH-tunnel server, and sets up AppNeta docker-compose container(s).
 </div>
-
-This repository contains source code for Stellar's remote monitoring node setup. The compiled binary installs dependencies, registers the node with the RMON reverse SSH-tunnel server, and sets up AppNeta docker-compose container(s).
 
 ## Usage
 
@@ -53,9 +52,10 @@ You should see a number of log messages explaining what the script is doing in t
 
 ## Creating a New Release
 
-This project uses [GoReleaser](https://goreleaser.com/) to manage releases, so it should be installed on your machine. After completing code changes and committing them via Git, follow these steps:
+This project uses [GoReleaser](https://goreleaser.com/) to manage releases. After completing code changes and committing them via Git, be sure to tag the release before pushing:
 
 ```
 git tag <release>
-goreleaser --rm-dist
 ```
+
+Once a new tag is pushed, GoReleaser will automagically create a new build & release.
